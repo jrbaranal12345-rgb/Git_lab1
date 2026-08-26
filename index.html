@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIMBUS COMPANY — Descend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0b090d;
+    --panel:#16121a;
+    --panel-raised:#1e1822;
+    --brass:#b08d57;
+    --brass-bright:#d8b878;
+    --wine:#6e1423;
+    --wine-bright:#9c2236;
+    --bone:#e8e2d4;
+    --bone-dim:#948c7d;
+    --line: rgba(176,141,87,0.22);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--void);
+    color:var(--bone);
+    font-family:'Cormorant', serif;
+    font-size:19px;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  ::selection{background:var(--wine);color:var(--bone);}
+
+  h1,h2,h3,.display{
+    font-family:'Cormorant SC', serif;
+    font-weight:600;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+
+  a{color:inherit;}
+
+  /* faint vertical filament texture across whole page */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+  }
+
+  /* ============ FLOOR INDICATOR (signature element) ============ */
+  .floor-rail{
+    position:fixed;
+    right:0;
+    top:0;
+    height:100vh;
+    width:64px;
+    z-index:50;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-left:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(11,9,13,0.2), rgba(11,9,13,0.85) 20%, rgba(11,9,13,0.85) 80%, rgba(11,9,13,0.2));
+    pointer-events:none;
+  }
+  .floor-readout{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:34px;
+    font-weight:600;
+    color:var(--brass-bright);
+    text-shadow:0 0 12px rgba(216,184,120,0.55);
+    transition:color 0.4s ease;
+  }
+  .floor-readout.alert{ color:var(--wine-bright); text-shadow:0 0 14px rgba(156,34,54,0.7); }
+  .floor-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    color:var(--bone-dim);
+    letter-spacing:0.25em;
+    margin-top:6px;
+  }
+  .floor-track{
+    position:absolute;
+    left:50%;
+    top:14%;
+    bottom:14%;
+    width:1px;
+    background:var(--line);
+    transform:translateX(-50%);
+  }
+  .floor-dot{
+    position:absolute;
+    left:50%;
+    width:5px;height:5px;
+    border-radius:50%;
+    background:var(--bone-dim);
+    transform:translate(-50%,-50%);
+    transition:background 0.3s, box-shadow 0.3s;
+  }
+  .floor-dot.lit{ background:var(--brass-bright); box-shadow:0 0 8px var(--brass-bright); }
+  @media (max-width:760px){ .floor-rail{width:40px;} .floor-readout{font-size:22px;} .floor-label{display:none;} }
+
+  section{ position:relative; z-index:2; padding:0 8vw; }
+
+  /* ============ HERO ============ */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-right:calc(8vw + 64px);
+    position:relative;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 20%, rgba(110,20,35,0.16), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(176,141,87,0.08), transparent 60%);
+    z-index:-1;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.35em;
+    color:var(--brass);
+    margin-bottom:28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .eyebrow::before{ content:""; width:34px; height:1px; background:var(--brass); display:inline-block; }
+
+  .hero h1{
+    font-size:clamp(3.2rem, 9vw, 7.5rem);
+    line-height:0.92;
+    color:var(--bone);
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:transparent;
+    -webkit-text-stroke:1px var(--wine-bright);
+  }
+  .hero .subhead{
+    max-width:540px;
+    margin-top:30px;
+    font-size:1.3rem;
+    font-style:italic;
+    color:var(--bone-dim);
+    border-left:2px solid var(--wine);
+    padding-left:22px;
+  }
+  .hero-cta{
+    margin-top:48px;
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    padding:16px 30px;
+    border:1px solid var(--brass);
+    background:transparent;
+    color:var(--brass-bright);
+    cursor:pointer;
+    transition:all 0.25s ease;
+    text-decoration:none;
+    display:inline-block;
+  }
+  .btn:hover{ background:var(--brass); color:var(--void); }
+  .btn.solid{ background:var(--wine); border-color:var(--wine); color:var(--bone); }
+  .btn.solid:hover{ background:var(--wine-bright); border-color:var(--wine-bright); color:var(--bone); }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:40px;
+    left:8vw;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.2em;
+    color:var(--bone-dim);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .scroll-cue .bar{ width:1px; height:36px; background:linear-gradient(var(--brass), transparent); animation:drip 2.2s infinite; }
+  @keyframes drip{ 0%{opacity:0.2;} 50%{opacity:1;} 100%{opacity:0.2;} }
+
+  /* ============ SECTION HEADERS ============ */
+  .sec-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:1px solid var(--line);
+    padding-bottom:22px;
+    margin-bottom:56px;
+    padding-right:64px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .sec-head h2{ font-size:clamp(1.8rem,4vw,2.8rem); color:var(--bone); }
+  .sec-head .tag{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--bone-dim); letter-spacing:0.1em; max-width:340px; text-align:right; }
+
+  /* ============ CREW / SINNERS ============ */
+  .crew{ padding-top:130px; padding-bottom:120px; padding-right:calc(8vw + 64px); }
+  .crew-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .card{
+    background:var(--panel);
+    padding:28px 24px;
+    position:relative;
+    transition:background 0.3s ease;
+    min-height:190px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .card:hover{ background:var(--panel-raised); }
+  .card .num{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--brass); letter-spacing:0.1em; }
+  .card h3{ font-size:1.5rem; margin-top:14px; color:var(--bone); letter-spacing:0.02em; }
+  .card p{ font-size:0.95rem; font-style:italic; color:var(--bone-dim); margin-top:10px; line-height:1.5; }
+  .card .sigil{
+    position:absolute; top:22px; right:22px;
+    width:10px;height:10px;border:1px solid var(--wine-bright);
+    transform:rotate(45deg);
+    opacity:0.7;
+  }
+
+  /* ============ DISTORTION SECTION ============ */
+  .distortion{
+    padding-top:120px;
+    padding-bottom:120px;
+    padding-right:calc(8vw + 64px);
+    background:
+      linear-gradient(180deg, transparent, rgba(110,20,35,0.05) 40%, transparent);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .dist-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:60px;
+    align-items:center;
+  }
+  @media (max-width:840px){ .dist-grid{ grid-template-columns:1fr; } }
+
+  .dist-copy h2{ font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:24px; }
+  .dist-copy p{ color:var(--bone-dim); font-size:1.1rem; margin-bottom:18px; max-width:480px; }
+  .dist-copy strong{ color:var(--wine-bright); font-weight:600; font-style:normal; }
+
+  .gauge{
+    position:relative;
+    aspect-ratio:1;
+    max-width:380px;
+    margin:0 auto;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .gauge::before{
+    content:"";
+    position:absolute;
+    inset:14%;
+    border-radius:50%;
+    border:1px dashed var(--line);
+  }
+  .gauge-fill{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:conic-gradient(from 180deg, var(--wine) 0deg, var(--wine-bright) var(--fill,140deg), transparent var(--fill,140deg) 360deg);
+    opacity:0.35;
+    -webkit-mask:radial-gradient(circle, transparent 55%, black 56%);
+    mask:radial-gradient(circle, transparent 55%, black 56%);
+  }
+  .gauge-center{ text-align:center; z-index:2; }
+  .gauge-center .val{ font-family:'IBM Plex Mono',monospace; font-size:2.6rem; color:var(--brass-bright); }
+  .gauge-center .lbl{ font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--bone-dim); margin-top:6px; }
+
+  /* ============ LEDGER / FEATURES ============ */
+  .ledger{ padding-top:120px; padding-bottom:120px; padding-right:calc(8vw + 64px); }
+  .ledger-rows{ border-top:1px solid var(--line); }
+  .ledger-row{
+    display:grid;
+    grid-template-columns: 90px 1fr 2fr;
+    gap:30px;
+    padding:30px 0;
+    border-bottom:1px solid var(--line);
+    align-items:baseline;
+  }
+  @media (max-width:700px){ .ledger-row{ grid-template-columns:60px 1fr; } .ledger-row .ledger-desc{ grid-column:1 / -1; } }
+  .ledger-row .ledger-no{ font-family:'IBM Plex Mono',monospace; color:var(--brass); font-size:13px; }
+  .ledger-row h3{ font-size:1.6rem; color:var(--bone); }
+  .ledger-row .ledger-desc{ color:var(--bone-dim); font-size:1.05rem; font-style:italic; }
+
+  /* ============ CTA / FOOTER ============ */
+  .final{
+    min-height:70vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding-right:64px;
+    position:relative;
+  }
+  .final::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(110,20,35,0.14), transparent 70%);
+    z-index:-1;
+  }
+  .final h2{ font-size:clamp(2.2rem,7vw,4.5rem); max-width:900px; }
+  .final .subhead{ margin-top:22px; color:var(--bone-dim); font-style:italic; font-size:1.2rem; max-width:480px; }
+  .final .hero-cta{ justify-content:center; margin-top:44px; }
+
+  footer{
+    padding:36px 8vw;
+    padding-right:calc(8vw + 64px);
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--bone-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .scroll-cue .bar{ animation:none; opacity:0.6; }
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--brass-bright);
+    outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="floor-rail" aria-hidden="true">
+    <div class="floor-track" id="floorTrack"></div>
+    <div class="floor-readout mono" id="floorReadout">B1</div>
+    <div class="floor-label">CURRENT<br>FLOOR</div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="eyebrow">Personnel Management Division</div>
+    <h1>Limbus<br><em>Company</em></h1>
+    <p class="subhead">Twelve sinners, bound by contract, sent floor by floor into a Library that reads its visitors back. Manage the descent. Mind the distortion.</p>
+    <div class="hero-cta">
+      <a class="btn solid" href="#crew">Meet the Sinners</a>
+      <a class="btn" href="#distortion">How Distortion Works</a>
+    </div>
+    <div class="scroll-cue"><div class="bar"></div>DESCEND</div>
+  </section>
+
+  <!-- CREW -->
+  <section class="crew" id="crew">
+    <div class="sec-head">
+      <h2>The Roster</h2>
+      <div class="tag">Twelve names on loan from old books, each carrying a debt only the Library can collect.</div>
+    </div>
+    <div class="crew-grid" id="crewGrid">
+      <!-- cards injected by JS from data below, but kept as static HTML for no-js fallback -->
+    </div>
+  </section>
+
+  <!-- DISTORTION -->
+  <section class="distortion" id="distortion">
+    <div class="dist-grid">
+      <div class="dist-copy">
+        <h2>Every Sinner Has a Breaking Point</h2>
+        <p>Push a sinner past what they can carry and something in them gives way. What answers isn't defeat — it's a different, <strong>heavier</strong> version of the same person, one the Library finds far more interesting.</p>
+        <p>Reading a sinner's ledger closely enough tells you exactly how far they can be pushed, and what waits for you on the other side if you push too hard.</p>
+        <a class="btn" href="#ledger">Read the Ledger</a>
+      </div>
+      <div class="gauge">
+        <div class="gauge-fill" style="--fill:225deg;"></div>
+        <div class="gauge-center">
+          <div class="val mono">78%</div>
+          <div class="lbl">STRAIN THRESHOLD</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEDGER / FEATURES -->
+  <section class="ledger" id="ledger">
+    <div class="sec-head">
+      <h2>Field Manual</h2>
+      <div class="tag">What management actually looks like, floor to floor.</div>
+    </div>
+    <div class="ledger-rows">
+      <div class="ledger-row">
+        <div class="ledger-no mono">01</div>
+        <h3>Formation</h3>
+        <div class="ledger-desc">Position your sinners before the elevator doors open. Where someone stands decides who takes the first hit — and who gets to answer it.</div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-no mono">02</div>
+        <h3>E.G.O</h3>
+        <div class="ledger-desc">Borrowed power always costs something back. Equip it, and expect the wearer to change a little in return.</div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-no mono">03</div>
+        <h3>The Mirror</h3>
+        <div class="ledger-desc">Between floors, sinners speak plainly — about each other, about you, about whether any of this is worth what it costs.</div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-no mono">04</div>
+        <h3>Railway</h3>
+        <div class="ledger-desc">The city outside keeps its own schedule. Some floors are reached by elevator. Others, only by train, and only if you're already aboard.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final" id="join">
+    <div class="eyebrow" style="justify-content:center;">Contract Available</div>
+    <h2>The Elevator Is<br>Already Descending</h2>
+    <p class="subhead">Sign where indicated. The Library does not wait for management to catch up.</p>
+    <div class="hero-cta">
+      <a class="btn solid" href="#top">Begin Management</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>© LIMBUS COMPANY — FAN CONCEPT PAGE, UNOFFICIAL</div>
+    <div>FLOOR B1 → FLOOR 1 → ??? </div>
+  </footer>
+
+<script>
+  // ---- Crew data (original flavor text, not reproducing game text) ----
+  const crew = [
+    { name:"Yi Sang", role:"The Poet", note:"Writes his own obituary between shifts, just in case." },
+    { name:"Faust", role:"The Engineer", note:"Fixes what's broken and asks no questions about how it got that way." },
+    { name:"Don Quixote", role:"The Knight", note:"Sees a windmill, charges anyway. Sometimes she's right to." },
+    { name:"Ryōshū", role:"The Blade", note:"Carries a debt older than the company that hired her." },
+    { name:"Meursault", role:"The Witness", note:"Watches everything happen and files no complaints." },
+    { name:"Hong Lu", role:"The Apprentice", note:"Answers to a hunger that isn't entirely his own." },
+    { name:"Heathcliff", role:"The Constant", note:"Loyal to a fault, and the fault runs deep." },
+    { name:"Ishmael", role:"The Sailor", note:"Has been to the bottom of worse things than this Library." },
+    { name:"Rodion", role:"The Reckoner", note:"Keeps a private ledger of who deserves what." },
+    { name:"Sinclair", role:"The Salesman", note:"Could sell the Library back to itself." },
+    { name:"Outis", role:"The Nobody", note:"Answers to no name in particular, and that's the point." },
+    { name:"Gregor", role:"The Changed", note:"Used to be someone easier to explain." }
+  ];
+
+  const grid = document.getElementById('crewGrid');
+  grid.innerHTML = crew.map((c,i)=>`
+    <div class="card">
+      <div class="sigil"></div>
+      <div>
+        <div class="num mono">N-${String(i+1).padStart(2,'0')}</div>
+        <h3>${c.name}</h3>
+      </div>
+      <p>${c.role} — ${c.note}</p>
+    </div>
+  `).join('');
+
+  // ---- Floor rail: dots + readout driven by scroll ----
+  const track = document.getElementById('floorTrack');
+  const readout = document.getElementById('floorReadout');
+  const floors = ["B1","01","02","03","04","05","??"];
+  const dotEls = [];
+  floors.forEach((f,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'floor-dot';
+    dot.style.top = (i/(floors.length-1)*100) + '%';
+    track.appendChild(dot);
+    dotEls.push(dot);
+  });
+
+  function onScroll(){
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+    const idx = Math.min(floors.length-1, Math.floor(progress * floors.length));
+    readout.textContent = floors[idx];
+    readout.classList.toggle('alert', idx === floors.length-1);
+    dotEls.forEach((d,i)=> d.classList.toggle('lit', i<=idx));
+  }
+  document.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+</script>
+
+</body>
+</html>
